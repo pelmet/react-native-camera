@@ -5,18 +5,25 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.TextureView;
+import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 
-class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener {
+class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, TextureView.OnTouchListener {
     private int _cameraType;
     private SurfaceTexture _surfaceTexture;
     private boolean _isStarting;
     private boolean _isStopping;
     private Camera _camera;
+
+    public static  final int FOCUS_AREA_SIZE= 300;
 
     public RCTCameraViewFinder(Context context, int type) {
         super(context);
@@ -136,4 +143,82 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             }
         }
     }
+
+    public void focusOnTouch(MotionEvent event, int width, int height) {
+        if (_camera != null ) {
+
+            Camera.Parameters parameters = _camera.getParameters();
+            if (parameters.getMaxNumMeteringAreas() > 0){
+                Log.i("TAG","fancy !");
+                Rect rect = calculateFocusArea(event.getX(), event.getY(), width, height);
+
+                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                List<Camera.Area> meteringAreas = new ArrayList<Camera.Area>();
+                meteringAreas.add(new Camera.Area(rect, 800));
+                parameters.setFocusAreas(meteringAreas);
+
+                _camera.setParameters(parameters);
+                _camera.autoFocus(mAutoFocusTakePictureCallback);
+            }else {
+                _camera.autoFocus(mAutoFocusTakePictureCallback);
+            }
+        }
+    }
+
+    public Rect calculateFocusArea(float x, float y, int width, int height) {
+        RCTCamera _cameraPreview = RCTCamera.getInstance();
+        int left = clamp(Float.valueOf((x / width) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
+        int top = clamp(Float.valueOf((y / height) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
+
+        Log.i("X", Float.toString(x));
+        Log.i("Y", Float.toString(y));
+        Log.i("LEFT", Integer.toString(left));
+        Log.i("TOP", Integer.toString(top));
+        Log.i("WIDTH", Integer.toString(width));
+        Log.i("HEIGHT", Integer.toString(height));
+
+        return new Rect(left, top, left + FOCUS_AREA_SIZE / 2, top + FOCUS_AREA_SIZE / 2);
+    }
+
+    public int clamp(int touchCoordinateInCameraReper, int focusAreaSize) {
+        int result;
+        if (Math.abs(touchCoordinateInCameraReper)+focusAreaSize/2>1000){
+            if (touchCoordinateInCameraReper>0){
+                result = 1000 - focusAreaSize/2;
+            } else {
+                result = -1000 + focusAreaSize/2;
+            }
+        } else{
+            result = touchCoordinateInCameraReper - focusAreaSize/2;
+        }
+        return result;
+    }
+    
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        Log.i("AAAA", "Touch me!");
+        return false;
+    }
+
+    private Camera.AutoFocusCallback mAutoFocusTakePictureCallback = new Camera.AutoFocusCallback() {
+        @Override
+        public void onAutoFocus(boolean success, Camera camera) {
+            if (success) {
+                // do something...
+                Log.i("tap_to_focus","success!");
+            } else {
+                // do something...
+                Log.i("tap_to_focus","fail!");
+            }
+        }
+    };
+
+    public void setAutofocusCallback(Camera.AutoFocusCallback callback) {
+        if(_camera != null) {
+            _camera.autoFocus(callback);
+        }
+
+        mAutoFocusTakePictureCallback = callback;
+    }
+
 }

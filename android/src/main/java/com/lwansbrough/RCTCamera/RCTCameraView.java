@@ -6,11 +6,17 @@ package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
 import android.graphics.*;
-import android.hardware.SensorManager;
+import android.graphics.drawable.GradientDrawable;
+import android.hardware.*;
+import android.hardware.Camera;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.OrientationEventListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class RCTCameraView extends ViewGroup {
     private final OrientationEventListener _orientationListener;
@@ -21,6 +27,8 @@ public class RCTCameraView extends ViewGroup {
     private String _captureQuality = "high";
     private int _torchMode = -1;
     private int _flashMode = -1;
+
+    protected RCTCameraFocusAreaView _focusArea;
 
     public RCTCameraView(Context context) {
         super(context);
@@ -41,6 +49,18 @@ public class RCTCameraView extends ViewGroup {
         } else {
             _orientationListener.disable();
         }
+
+        setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                _focusArea.setFocused(false);
+                _viewFinder.focusOnTouch(event, getWidth(), getHeight());
+                layoutFocusArea(event);
+                return false;
+            }
+        });
+
+        _focusArea = new RCTCameraFocusAreaView(_context);
     }
 
     @Override
@@ -55,6 +75,8 @@ public class RCTCameraView extends ViewGroup {
         // @TODO figure out why there was a z order issue in the first place and fix accordingly.
         this.removeView(this._viewFinder);
         this.addView(this._viewFinder, 0);
+
+        bringChildToFront(_focusArea);
     }
 
     public void setAspect(int aspect) {
@@ -73,7 +95,18 @@ public class RCTCameraView extends ViewGroup {
             if (-1 != this._torchMode) {
                 _viewFinder.setFlashMode(this._torchMode);
             }
+
+            _viewFinder.setAutofocusCallback(new Camera.AutoFocusCallback() {
+                @Override
+                public void onAutoFocus(boolean success, Camera camera) {
+                    if(success) {
+                        _focusArea.setFocused(true);
+                    }
+                }
+            });
+
             addView(_viewFinder);
+            addView(_focusArea);
         }
     }
 
@@ -120,6 +153,19 @@ public class RCTCameraView extends ViewGroup {
         layoutViewFinder(this.getLeft(), this.getTop(), this.getRight(), this.getBottom());
     }
 
+    protected void layoutFocusArea(int x, int y) {
+        int focusAreaSize = RCTCameraViewFinder.FOCUS_AREA_SIZE;
+        int focusAreaSizeHalf = focusAreaSize / 2;
+        int t = x - focusAreaSizeHalf;
+        int l =  y - focusAreaSizeHalf;
+
+        _focusArea.layout(t, l, t + focusAreaSize, l + focusAreaSize);
+    }
+
+    protected void layoutFocusArea(MotionEvent event) {
+        layoutFocusArea((int) event.getX(), (int) event.getY());
+    }
+
     private void layoutViewFinder(int left, int top, int right, int bottom) {
         if (null == _viewFinder) {
             return;
@@ -129,6 +175,9 @@ public class RCTCameraView extends ViewGroup {
         int viewfinderWidth;
         int viewfinderHeight;
         double ratio;
+
+        layoutFocusArea((int) (width / 2), (int) (height / 2));
+
         switch (this._aspect) {
             case RCTCameraModule.RCT_CAMERA_ASPECT_FIT:
                 ratio = this._viewFinder.getRatio();
@@ -161,4 +210,5 @@ public class RCTCameraView extends ViewGroup {
         this._viewFinder.layout(viewFinderPaddingX, viewFinderPaddingY, viewFinderPaddingX + viewfinderWidth, viewFinderPaddingY + viewfinderHeight);
         this.postInvalidate(this.getLeft(), this.getTop(), this.getRight(), this.getBottom());
     }
+
 }
