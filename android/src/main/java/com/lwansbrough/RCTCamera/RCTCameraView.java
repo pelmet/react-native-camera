@@ -9,6 +9,7 @@ import android.graphics.*;
 import android.graphics.drawable.GradientDrawable;
 import android.hardware.*;
 import android.hardware.Camera;
+import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.OrientationEventListener;
@@ -88,7 +89,12 @@ public class RCTCameraView extends ViewGroup {
         if (null != this._viewFinder) {
             this._viewFinder.setCameraType(type);
         } else {
-            _viewFinder = new RCTCameraViewFinder(_context, type);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                _viewFinder = new RCTCameraViewFinder2(_context, type);
+            } else {
+                _viewFinder = new RCTCameraViewFinder(_context, type);
+            }
+
             if (-1 != this._flashMode) {
                 _viewFinder.setFlashMode(this._flashMode);
             }
