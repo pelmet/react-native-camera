@@ -174,25 +174,12 @@ class RCTCameraViewFinder2 extends RCTCameraViewFinder {
         Rect rect = calculateFocusArea(event.getX(), event.getY(), width, height);
         Rect sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
 
-        Log.e("SENSOR", Integer.toString(sensorSize.width()));
-        Log.e("SENSOR", Integer.toString(sensorSize.height()));
-        Log.e("SCREEN", Integer.toString(width));
-        Log.e("SCREEN", Integer.toString(height));
-        Log.e("X", Float.toString(event.getX()));
-        Log.e("Y", Float.toString(event.getY()));
-        Log.e("TOP", Integer.toString(rect.top));
-        Log.e("LEFT", Integer.toString(rect.left));
-
         float ratioY = sensorSize.width() / width;
         float ratioX = sensorSize.height() / height;
 
-        Log.e("ratioX", Float.toString(ratioX));
-        Log.e("ratioY", Float.toString(ratioY));
 
         MeteringRectangle[] focusArea = new MeteringRectangle[1];
         focusArea[0] = new MeteringRectangle((int) (rect.top * ratioX), (int) (rect.left * ratioY), rect.width(), rect.height(), 1000);
-        Log.e("TOP", Integer.toString((int) (rect.top * ratioX)));
-        Log.e("TOP", Integer.toString((int) (rect.left * ratioY)));
 
         mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
         mPreviewRequestBuilder.set( CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO);
@@ -204,8 +191,6 @@ class RCTCameraViewFinder2 extends RCTCameraViewFinder {
         try {
             mPreviewRequest = mPreviewRequestBuilder.build();
             mCaptureSession.capture(mPreviewRequest, mCaptureCallback, mBackgroundHandler);
-
-            Log.e("FOCUS", "ON");
         } catch (Exception e) {
             e.printStackTrace();
         }

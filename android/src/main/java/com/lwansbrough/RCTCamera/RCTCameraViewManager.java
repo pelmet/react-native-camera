@@ -60,5 +60,6 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
     @ReactProp(name = "captureAudio")
     public void setCaptureAudio(RCTCameraView view, boolean captureAudio) {
         // TODO - implement video mode
+
     }
 }

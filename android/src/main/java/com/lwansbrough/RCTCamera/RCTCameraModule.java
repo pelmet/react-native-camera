@@ -6,7 +6,9 @@ package com.lwansbrough.RCTCamera;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.media.ExifInterface;
 import android.media.MediaActionSound;
 import android.net.Uri;
 import android.os.Environment;
@@ -52,6 +54,15 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     public static final int RCT_CAMERA_TORCH_MODE_AUTO = 2;
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
+
+    protected static Integer cropX = null;
+    protected static Integer cropY = null;
+    protected static Integer cropWidth = null;
+    protected static Integer cropHeight = null;
+    protected static Float ratioCropX = null;
+    protected static Float ratioCropY= null;
+    protected static Float ratioCrop = null;
+    protected Boolean takingPhoto = false;
 
     private final ReactApplicationContext _reactContext;
     private RCTSensorOrientationChecker _sensorOrientationChecker;
@@ -194,8 +205,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         }
     }
 
-    public void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
+    public void captureWithOrientation(final ReadableMap options, final Promise promise, final int deviceOrientation) {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+        if(takingPhoto) {
+            return;
+        }
+
+        takingPhoto = true;
+
         if (null == camera) {
             promise.reject("No camera found.");
             return;
@@ -217,6 +234,113 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                 camera.stopPreview();
                 camera.startPreview();
                 WritableMap response = new WritableNativeMap();
+
+                Bitmap original = BitmapFactory.decodeByteArray(data , 0, data.length);
+
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                Camera.getCameraInfo(Camera.CameraInfo.CAMERA_FACING_BACK, info);
+                int orientation = info.orientation;
+                int exifOrientation = Exif.getOrientation(data);
+                float originalRatio = (float) original.getWidth() / original.getHeight();
+                Float rX = 1f;
+                Float rY = 1f;
+
+                if(ratioCropX != null && ratioCropY != null) {
+                     rX = ratioCropX;
+                     rY = ratioCropY;
+                }
+
+                if(ratioCrop != null) {
+
+                    float ratio = ratioCrop;
+
+                    if(originalRatio != ratioCrop) {
+                        if(originalRatio < 1 && ratioCrop > 1) {
+                            ratioCrop = 1f / ratioCrop;
+                        }
+
+                        if(originalRatio > 1 && ratioCrop < 1) {
+                            ratioCrop = 1f / ratioCrop;
+                        }
+
+                        ratio = (float) ratioCrop / originalRatio / ratioCrop; // ratio between preview ratio and taken picture ratio
+                    }
+
+                    if(ratioCrop <= 1) { // portrait
+                        rX = 1f;
+                        rY = ratio;
+                    } else {
+                        rX = ratio;
+                        rY = 1f;
+                    }
+                }
+
+                int degrees = 0;
+                switch (deviceOrientation) {
+                    case Surface.ROTATION_0: degrees = 0; break;
+                    case Surface.ROTATION_90: degrees = 90; break;
+                    case Surface.ROTATION_180: degrees = 180; break;
+                    case Surface.ROTATION_270: degrees = 270; break;
+                }
+
+                if(degrees == 90 || degrees == 270) {
+                    rX = ratioCropY;
+                    rY = ratioCropX;
+                }
+
+                if(ratioCropX != null && ratioCropY != null) {
+                    cropWidth = (int) (original.getWidth() * rX);
+                    cropHeight = (int) (original.getHeight() * rY);
+                }
+
+                if(cropWidth != null && cropHeight != null) {
+
+                    float ratioX = original.getWidth() / cropWidth;
+                    float rationY = original.getHeight() / cropHeight;
+
+                    if(cropX == null) {
+                        cropX = (int) Math.max(0, (original.getWidth() - cropWidth)) / 2; // padding from left
+                    }
+
+                    if(cropY == null) {
+                        cropY = (int) Math.max(0, (original.getHeight() - cropHeight)) / 2; //padding from top
+                    }
+
+                    /*
+                    Log.e("rX", Float.toString(rX));
+                    Log.e("rY", Float.toString(rY));
+                    Log.e("X", Integer.toString(cropX));
+                    Log.e("Y", Integer.toString(cropY));
+                    Log.e("W", Integer.toString(cropWidth));
+                    Log.e("H", Integer.toString(cropHeight));
+                    Log.e("W", Integer.toString(original.getWidth()));
+                    Log.e("H", Integer.toString(original.getHeight()));
+                    Log.e("degrees", Integer.toString(degrees));
+*/
+
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(exifOrientation);
+
+                    // crop to preview window
+                    Bitmap cropped;
+                    if(degrees == 90 || degrees == 270) {
+                        cropped = Bitmap.createBitmap(original, cropY, cropX, cropHeight, cropWidth, matrix, true);
+                    } else {
+                        cropped = Bitmap.createBitmap(original, cropX, cropY, cropWidth, cropHeight, matrix, true);
+                    }
+
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    cropped.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    data = stream.toByteArray();
+/*
+                    Log.e("BITMAP", Integer.toString(cropped.getWidth()) + " x " + Integer.toString(cropped.getHeight()));
+                    Log.e("CAMERA", Integer.toString(camera.getParameters().getPictureSize().width) + " x " + Integer.toString(camera.getParameters().getPictureSize().height));
+                */
+
+                }
+
+                takingPhoto = false;
+
                 switch (options.getInt("target")) {
                     case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                         String encoded = Base64.encodeToString(data, Base64.DEFAULT);
@@ -341,5 +465,19 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             Log.e(TAG, e.getMessage());
             return null;
         }
+    }
+
+    public static void setCrop(Integer width, Integer height) {
+        cropWidth = width;
+        cropHeight = height;
+    }
+
+    public static void setRatioCrop(Float rX, Float rY) {
+        ratioCropX = rX;
+        ratioCropY = rY;
+    }
+
+    public static void setRatioCrop(Float ratio) {
+        ratioCrop = ratio;
     }
 }

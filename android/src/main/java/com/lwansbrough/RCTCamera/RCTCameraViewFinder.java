@@ -55,6 +55,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
       public double getRatio() {
         int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
         int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
+
         return ((float) width) / ((float) height);
     }
 
@@ -99,6 +100,17 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     synchronized private void startCamera() {
         if (!_isStarting) {
             _isStarting = true;
+
+            int a = Camera.getNumberOfCameras();
+
+            for (int i = 0; i < a; i++) {
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                Camera.getCameraInfo(i, info);
+                if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                    break;
+                }
+            }
+
             try {
                 _camera = RCTCamera.getInstance().acquireCameraInstance(_cameraType);
                 Camera.Parameters parameters = _camera.getParameters();
@@ -149,7 +161,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
             Camera.Parameters parameters = _camera.getParameters();
             if (parameters.getMaxNumMeteringAreas() > 0){
-                Log.i("TAG","fancy !");
+                Log.i("TAG", "fancy !");
                 Rect rect = calculateFocusArea(event.getX(), event.getY(), width, height);
 
                 parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
@@ -157,8 +169,12 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 meteringAreas.add(new Camera.Area(rect, 800));
                 parameters.setFocusAreas(meteringAreas);
 
-                _camera.setParameters(parameters);
-                _camera.autoFocus(mAutoFocusTakePictureCallback);
+                try {
+                    _camera.setParameters(parameters);
+                    _camera.autoFocus(mAutoFocusTakePictureCallback);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }else {
                 _camera.autoFocus(mAutoFocusTakePictureCallback);
             }
@@ -196,7 +212,6 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        Log.i("AAAA", "Touch me!");
         return false;
     }
 

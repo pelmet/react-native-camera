@@ -4,6 +4,7 @@
 
 package com.lwansbrough.RCTCamera;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.*;
 import android.graphics.drawable.GradientDrawable;
@@ -28,6 +29,7 @@ public class RCTCameraView extends ViewGroup {
     private String _captureQuality = "high";
     private int _torchMode = -1;
     private int _flashMode = -1;
+    protected Integer type;
 
     protected RCTCameraFocusAreaView _focusArea;
 
@@ -62,6 +64,10 @@ public class RCTCameraView extends ViewGroup {
         });
 
         _focusArea = new RCTCameraFocusAreaView(_context);
+
+        Activity host = (Activity) getContext();
+
+
     }
 
     @Override
@@ -86,15 +92,21 @@ public class RCTCameraView extends ViewGroup {
     }
 
     public void setCameraType(final int type) {
+        this.type = type;
         if (null != this._viewFinder) {
             this._viewFinder.setCameraType(type);
+            resetFocusArea();
         } else {
+            /*
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 _viewFinder = new RCTCameraViewFinder2(_context, type);
             } else {
                 _viewFinder = new RCTCameraViewFinder(_context, type);
             }
+*/
 
+            _focusArea.setVisibility(type == RCTCameraModule.RCT_CAMERA_TYPE_BACK ? true : false);
+            _viewFinder = new RCTCameraViewFinder(_context, type);
             if (-1 != this._flashMode) {
                 _viewFinder.setFlashMode(this._flashMode);
             }
@@ -180,7 +192,7 @@ public class RCTCameraView extends ViewGroup {
         float height = bottom - top;
         int viewfinderWidth;
         int viewfinderHeight;
-        double ratio;
+        double ratio = width / height;
 
         layoutFocusArea((int) (width / 2), (int) (height / 2));
 
@@ -213,8 +225,17 @@ public class RCTCameraView extends ViewGroup {
         int viewFinderPaddingX = (int) ((width - viewfinderWidth) / 2);
         int viewFinderPaddingY = (int) ((height - viewfinderHeight) / 2);
 
+        RCTCameraModule.setRatioCrop((float) ratio); // very ugly hack
+
         this._viewFinder.layout(viewFinderPaddingX, viewFinderPaddingY, viewFinderPaddingX + viewfinderWidth, viewFinderPaddingY + viewfinderHeight);
         this.postInvalidate(this.getLeft(), this.getTop(), this.getRight(), this.getBottom());
+    }
+
+    protected void resetFocusArea()
+    {
+        _focusArea.setFocused(false);
+        layoutFocusArea(getWidth() / 2, getHeight() / 2);
+        _focusArea.setVisibility(type == RCTCameraModule.RCT_CAMERA_TYPE_BACK);
     }
 
 }

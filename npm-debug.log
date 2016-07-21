@@ -16,80 +16,81 @@
 12 silly mapToRegistry uri https://registry.npmjs.org/react-native-camera
 13 verbose request uri https://registry.npmjs.org/react-native-camera
 14 verbose request no auth needed
-15 info attempt registry request try #1 at 18:51:07
-16 verbose request id 2477f75866e9fe70
-17 http request GET https://registry.npmjs.org/react-native-camera
-18 http 200 https://registry.npmjs.org/react-native-camera
-19 verbose headers { server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
-19 verbose headers   etag: '"322ZYA35FNJOVVXJGSAOYD4K6"',
-19 verbose headers   'content-type': 'application/json',
-19 verbose headers   'content-encoding': 'gzip',
-19 verbose headers   'cache-control': 'max-age=300',
-19 verbose headers   'content-length': '7785',
-19 verbose headers   'accept-ranges': 'bytes',
-19 verbose headers   date: 'Thu, 14 Jul 2016 16:51:08 GMT',
-19 verbose headers   via: '1.1 varnish',
-19 verbose headers   age: '0',
-19 verbose headers   connection: 'keep-alive',
-19 verbose headers   'x-served-by': 'cache-fra1220-FRA',
-19 verbose headers   'x-cache': 'MISS',
-19 verbose headers   'x-cache-hits': '0',
-19 verbose headers   'x-timer': 'S1468515067.806160,VS0,VE762',
-19 verbose headers   vary: 'Accept-Encoding' }
-20 silly get cb [ 200,
-20 silly get   { server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
-20 silly get     etag: '"322ZYA35FNJOVVXJGSAOYD4K6"',
-20 silly get     'content-type': 'application/json',
-20 silly get     'content-encoding': 'gzip',
-20 silly get     'cache-control': 'max-age=300',
-20 silly get     'content-length': '7785',
-20 silly get     'accept-ranges': 'bytes',
-20 silly get     date: 'Thu, 14 Jul 2016 16:51:08 GMT',
-20 silly get     via: '1.1 varnish',
-20 silly get     age: '0',
-20 silly get     connection: 'keep-alive',
-20 silly get     'x-served-by': 'cache-fra1220-FRA',
-20 silly get     'x-cache': 'MISS',
-20 silly get     'x-cache-hits': '0',
-20 silly get     'x-timer': 'S1468515067.806160,VS0,VE762',
-20 silly get     vary: 'Accept-Encoding' } ]
-21 verbose get saving react-native-camera to /Users/vojtaz/.npm/registry.npmjs.org/react-native-camera/.cache.json
-22 verbose correctMkdir /Users/vojtaz/.npm correctMkdir not in flight; initializing
-23 silly install normalizeTree
-24 silly loadCurrentTree Finishing
-25 silly loadIdealTree Starting
-26 silly install loadIdealTree
-27 silly cloneCurrentTree Starting
-28 silly install cloneCurrentTreeToIdealTree
-29 silly cloneCurrentTree Finishing
-30 silly loadShrinkwrap Starting
-31 silly install loadShrinkwrap
-32 silly loadShrinkwrap Finishing
-33 silly loadAllDepsIntoIdealTree Starting
-34 silly install loadAllDepsIntoIdealTree
-35 silly rollbackFailedOptional Starting
-36 silly rollbackFailedOptional Finishing
-37 silly runTopLevelLifecycles Starting
-38 silly runTopLevelLifecycles Finishing
-39 silly install printInstalled
-40 verbose stack Error: Refusing to install react-native-camera as a dependency of itself
-40 verbose stack     at checkSelf (/usr/local/lib/node_modules/npm/lib/install/validate-args.js:53:14)
-40 verbose stack     at Array.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/slide/lib/bind-actor.js:15:8)
-40 verbose stack     at LOOP (/usr/local/lib/node_modules/npm/node_modules/slide/lib/chain.js:15:14)
-40 verbose stack     at chain (/usr/local/lib/node_modules/npm/node_modules/slide/lib/chain.js:20:5)
-40 verbose stack     at /usr/local/lib/node_modules/npm/lib/install/validate-args.js:16:5
-40 verbose stack     at /usr/local/lib/node_modules/npm/node_modules/slide/lib/async-map.js:52:35
-40 verbose stack     at Array.forEach (native)
-40 verbose stack     at /usr/local/lib/node_modules/npm/node_modules/slide/lib/async-map.js:52:11
-40 verbose stack     at Array.forEach (native)
-40 verbose stack     at asyncMap (/usr/local/lib/node_modules/npm/node_modules/slide/lib/async-map.js:51:8)
-41 verbose cwd /Users/vojtaz/Work/react-native/modules/camera
-42 error Darwin 15.5.0
-43 error argv "/usr/local/Cellar/node/5.5.0/bin/node" "/usr/local/bin/npm" "install" "react-native-camera"
-44 error node v5.5.0
-45 error npm  v3.8.2
-46 error code ENOSELF
-47 error Refusing to install react-native-camera as a dependency of itself
-48 error If you need help, you may report this error at:
-48 error     <https://github.com/npm/npm/issues>
-49 verbose exit [ 1, true ]
+15 info attempt registry request try #1 at 09:12:37
+16 verbose request id de6a1970963d1f31
+17 verbose etag "322ZYA35FNJOVVXJGSAOYD4K6"
+18 http request GET https://registry.npmjs.org/react-native-camera
+19 http 200 https://registry.npmjs.org/react-native-camera
+20 verbose headers { server: 'CouchDB/1.6.1 (Erlang OTP/R16B03)',
+20 verbose headers   etag: '"6BJVS6MHRO9MQLR2FZCZIW1TP"',
+20 verbose headers   'content-type': 'application/json',
+20 verbose headers   'content-encoding': 'gzip',
+20 verbose headers   'cache-control': 'max-age=300',
+20 verbose headers   'content-length': '7790',
+20 verbose headers   'accept-ranges': 'bytes',
+20 verbose headers   date: 'Thu, 21 Jul 2016 07:12:37 GMT',
+20 verbose headers   via: '1.1 varnish',
+20 verbose headers   age: '0',
+20 verbose headers   connection: 'keep-alive',
+20 verbose headers   'x-served-by': 'cache-fra1224-FRA',
+20 verbose headers   'x-cache': 'MISS',
+20 verbose headers   'x-cache-hits': '0',
+20 verbose headers   'x-timer': 'S1469085157.352585,VS0,VE434',
+20 verbose headers   vary: 'Accept-Encoding' }
+21 silly get cb [ 200,
+21 silly get   { server: 'CouchDB/1.6.1 (Erlang OTP/R16B03)',
+21 silly get     etag: '"6BJVS6MHRO9MQLR2FZCZIW1TP"',
+21 silly get     'content-type': 'application/json',
+21 silly get     'content-encoding': 'gzip',
+21 silly get     'cache-control': 'max-age=300',
+21 silly get     'content-length': '7790',
+21 silly get     'accept-ranges': 'bytes',
+21 silly get     date: 'Thu, 21 Jul 2016 07:12:37 GMT',
+21 silly get     via: '1.1 varnish',
+21 silly get     age: '0',
+21 silly get     connection: 'keep-alive',
+21 silly get     'x-served-by': 'cache-fra1224-FRA',
+21 silly get     'x-cache': 'MISS',
+21 silly get     'x-cache-hits': '0',
+21 silly get     'x-timer': 'S1469085157.352585,VS0,VE434',
+21 silly get     vary: 'Accept-Encoding' } ]
+22 verbose get saving react-native-camera to /Users/vojtaz/.npm/registry.npmjs.org/react-native-camera/.cache.json
+23 verbose correctMkdir /Users/vojtaz/.npm correctMkdir not in flight; initializing
+24 silly install normalizeTree
+25 silly loadCurrentTree Finishing
+26 silly loadIdealTree Starting
+27 silly install loadIdealTree
+28 silly cloneCurrentTree Starting
+29 silly install cloneCurrentTreeToIdealTree
+30 silly cloneCurrentTree Finishing
+31 silly loadShrinkwrap Starting
+32 silly install loadShrinkwrap
+33 silly loadShrinkwrap Finishing
+34 silly loadAllDepsIntoIdealTree Starting
+35 silly install loadAllDepsIntoIdealTree
+36 silly rollbackFailedOptional Starting
+37 silly rollbackFailedOptional Finishing
+38 silly runTopLevelLifecycles Starting
+39 silly runTopLevelLifecycles Finishing
+40 silly install printInstalled
+41 verbose stack Error: Refusing to install react-native-camera as a dependency of itself
+41 verbose stack     at checkSelf (/usr/local/lib/node_modules/npm/lib/install/validate-args.js:53:14)
+41 verbose stack     at Array.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/slide/lib/bind-actor.js:15:8)
+41 verbose stack     at LOOP (/usr/local/lib/node_modules/npm/node_modules/slide/lib/chain.js:15:14)
+41 verbose stack     at chain (/usr/local/lib/node_modules/npm/node_modules/slide/lib/chain.js:20:5)
+41 verbose stack     at /usr/local/lib/node_modules/npm/lib/install/validate-args.js:16:5
+41 verbose stack     at /usr/local/lib/node_modules/npm/node_modules/slide/lib/async-map.js:52:35
+41 verbose stack     at Array.forEach (native)
+41 verbose stack     at /usr/local/lib/node_modules/npm/node_modules/slide/lib/async-map.js:52:11
+41 verbose stack     at Array.forEach (native)
+41 verbose stack     at asyncMap (/usr/local/lib/node_modules/npm/node_modules/slide/lib/async-map.js:51:8)
+42 verbose cwd /Users/vojtaz/Work/react-native/modules/camera
+43 error Darwin 15.5.0
+44 error argv "/usr/local/Cellar/node/5.5.0/bin/node" "/usr/local/bin/npm" "install" "react-native-camera"
+45 error node v5.5.0
+46 error npm  v3.8.2
+47 error code ENOSELF
+48 error Refusing to install react-native-camera as a dependency of itself
+49 error If you need help, you may report this error at:
+49 error     <https://github.com/npm/npm/issues>
+50 verbose exit [ 1, true ]

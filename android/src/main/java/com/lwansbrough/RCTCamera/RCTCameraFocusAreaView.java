@@ -14,6 +14,7 @@ public class RCTCameraFocusAreaView extends View {
 
     private Paint paint = new Paint();
     protected Boolean isFocused = false;
+    protected Boolean isVisible = true;
 
     public RCTCameraFocusAreaView(Context context) {
         super(context);
@@ -24,7 +25,9 @@ public class RCTCameraFocusAreaView extends View {
         // TODO Auto-generated method stub
         super.onDraw(canvas);
 
-        if(isFocused) {
+        if(!isVisible) {
+            paint.setColor(Color.TRANSPARENT);
+        } else if(isFocused) {
             paint.setColor(Color.GREEN);
         } else {
             paint.setColor(Color.GRAY);
@@ -45,6 +48,11 @@ public class RCTCameraFocusAreaView extends View {
 
     public void setFocused(Boolean bool) {
         isFocused = bool;
+        invalidate();
+    }
+
+    public void setVisibility(Boolean bool) {
+        isVisible = bool;
         invalidate();
     }
 }

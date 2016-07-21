@@ -5,6 +5,7 @@
 package com.lwansbrough.RCTCamera;
 
 import android.hardware.Camera;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.List;
