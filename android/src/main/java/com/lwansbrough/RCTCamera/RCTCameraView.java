@@ -64,10 +64,6 @@ public class RCTCameraView extends ViewGroup {
         });
 
         _focusArea = new RCTCameraFocusAreaView(_context);
-
-        Activity host = (Activity) getContext();
-
-
     }
 
     @Override
