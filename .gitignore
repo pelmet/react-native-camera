@@ -5,3 +5,5 @@ ios/RCTCamera.xcodeproj/xcuserdata
 ios/RCTCamera.xcodeproj/project.xcworkspace
 .DS_Store
 android/.idea
+android/build
+android/.gradle

@@ -23,6 +23,8 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     private boolean _isStopping;
     private Camera _camera;
 
+    public static  final int FOCUS_AREA_SIZE_MIN = 100;
+    public static  final int FOCUS_AREA_SIZE_MAX = 300;
     public static  final int FOCUS_AREA_SIZE= 300;
 
     public RCTCameraViewFinder(Context context, int type) {
@@ -158,10 +160,19 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     public void focusOnTouch(MotionEvent event, int width, int height) {
         if (_camera != null ) {
+            Log.e("event.getX()", event.getX() + "");
+            Log.e("event.getY()", event.getY() + "");
+
+            Log.e("Finder width", width + "");
+            Log.e("Finder height", height + "");
 
             Camera.Parameters parameters = _camera.getParameters();
-            if (parameters.getMaxNumMeteringAreas() > 0){
-                Log.i("TAG", "fancy !");
+            final List<String> focusModes = parameters.getSupportedFocusModes();
+
+            Log.e("focus modes: ", focusModes.toString());
+
+
+            if (parameters.getMaxNumFocusAreas() > 0){
                 Rect rect = calculateFocusArea(event.getX(), event.getY(), width, height);
 
                 parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
@@ -172,10 +183,16 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 try {
                     _camera.setParameters(parameters);
                     _camera.autoFocus(mAutoFocusTakePictureCallback);
+
+                    parameters = _camera.getParameters();
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                    _camera.setParameters(parameters);
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }else {
+            } else {
+                Log.e("Camera", "No autofocus areas");
                 _camera.autoFocus(mAutoFocusTakePictureCallback);
             }
         }
@@ -183,8 +200,9 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     public Rect calculateFocusArea(float x, float y, int width, int height) {
         RCTCamera _cameraPreview = RCTCamera.getInstance();
-        int left = clamp(Float.valueOf((x / width) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
-        int top = clamp(Float.valueOf((y / height) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
+        int focusAreaSize = (int) FOCUS_AREA_SIZE / 2;
+        int left = clamp(Float.valueOf((x / width) * 2000 - 1000).intValue(), focusAreaSize);
+        int top = clamp(Float.valueOf((y / height) * 2000 - 1000).intValue(), focusAreaSize);
 
         Log.i("X", Float.toString(x));
         Log.i("Y", Float.toString(y));
@@ -193,19 +211,20 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         Log.i("WIDTH", Integer.toString(width));
         Log.i("HEIGHT", Integer.toString(height));
 
-        return new Rect(left, top, left + FOCUS_AREA_SIZE / 2, top + FOCUS_AREA_SIZE / 2);
+        return new Rect(left, top, left + focusAreaSize / 2, top + focusAreaSize / 2);
     }
 
     public int clamp(int touchCoordinateInCameraReper, int focusAreaSize) {
         int result;
-        if (Math.abs(touchCoordinateInCameraReper)+focusAreaSize/2>1000){
+        int faSize = (int) focusAreaSize / 2;
+        if ((Math.abs(touchCoordinateInCameraReper) + (faSize)) > 1000){
             if (touchCoordinateInCameraReper>0){
-                result = 1000 - focusAreaSize/2;
+                result = 1000 - faSize;
             } else {
-                result = -1000 + focusAreaSize/2;
+                result = -1000 + faSize;
             }
         } else{
-            result = touchCoordinateInCameraReper - focusAreaSize/2;
+            result = touchCoordinateInCameraReper - faSize;
         }
         return result;
     }

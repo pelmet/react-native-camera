@@ -56,6 +56,7 @@ public class RCTCameraView extends ViewGroup {
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                Log.d("touch", "me");
                 _focusArea.setFocused(false);
                 _viewFinder.focusOnTouch(event, getWidth(), getHeight());
                 layoutFocusArea(event);
@@ -168,7 +169,15 @@ public class RCTCameraView extends ViewGroup {
     }
 
     protected void layoutFocusArea(int x, int y) {
+        this.layoutFocusArea(x,y,getRight() - getLeft());
+    }
+
+    protected void layoutFocusArea(int x, int y, int width) {
         int focusAreaSize = RCTCameraViewFinder.FOCUS_AREA_SIZE;
+        if(width > 0 ) {
+            focusAreaSize = Math.min(Math.max(width / 5, RCTCameraViewFinder.FOCUS_AREA_SIZE_MIN), RCTCameraViewFinder.FOCUS_AREA_SIZE_MAX);
+        }
+
         int focusAreaSizeHalf = focusAreaSize / 2;
         int t = x - focusAreaSizeHalf;
         int l =  y - focusAreaSizeHalf;
@@ -184,13 +193,14 @@ public class RCTCameraView extends ViewGroup {
         if (null == _viewFinder) {
             return;
         }
+
         float width = right - left;
         float height = bottom - top;
         int viewfinderWidth;
         int viewfinderHeight;
         double ratio = width / height;
 
-        layoutFocusArea((int) (width / 2), (int) (height / 2));
+        layoutFocusArea((int) (width / 2), (int) (height / 2), (int) width);
 
         switch (this._aspect) {
             case RCTCameraModule.RCT_CAMERA_ASPECT_FIT:
