@@ -7,3 +7,4 @@ ios/RCTCamera.xcodeproj/project.xcworkspace
 android/.idea
 android/build
 android/.gradle
+.idea

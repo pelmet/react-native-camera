@@ -30,6 +30,12 @@ public class RCTSensorOrientationChecker {
 
     }
 
+    public RCTSensorOrientationChecker( Context context) {
+        mSensorEventListener = new Listener();
+        mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+
+    }
+
     /**
      * Call on activity onResume()
      */

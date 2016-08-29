@@ -8,8 +8,10 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.hardware.SensorManager;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 
@@ -22,10 +24,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     private boolean _isStarting;
     private boolean _isStopping;
     private Camera _camera;
+    private RCTSensorOrientationChecker _sensorOrientationChecker;
 
     public static  final int FOCUS_AREA_SIZE_MIN = 100;
     public static  final int FOCUS_AREA_SIZE_MAX = 300;
-    public static  final int FOCUS_AREA_SIZE= 300;
+    public static  final int FOCUS_AREA_SIZE= 50;
 
     public RCTCameraViewFinder(Context context, int type) {
         super(context);
@@ -173,22 +176,23 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
 
             if (parameters.getMaxNumFocusAreas() > 0){
-                Rect rect = calculateFocusArea(event.getX(), event.getY(), width, height);
+                Rect rect = calculateFocusArea(event.getX(), event.getY(), width, height, getOrientation());
 
                 parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                 List<Camera.Area> meteringAreas = new ArrayList<Camera.Area>();
-                meteringAreas.add(new Camera.Area(rect, 800));
+                meteringAreas.add(new Camera.Area(rect, 900));
                 parameters.setFocusAreas(meteringAreas);
 
                 try {
                     _camera.setParameters(parameters);
                     _camera.autoFocus(mAutoFocusTakePictureCallback);
-
+/*
                     parameters = _camera.getParameters();
                     parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-                    _camera.setParameters(parameters);
+                    _camera.setParameters(parameters);*/
 
                 } catch (Exception e) {
+                    Log.e("Camera err", e.getMessage());
                     e.printStackTrace();
                 }
             } else {
@@ -198,10 +202,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         }
     }
 
-    public Rect calculateFocusArea(float x, float y, int width, int height) {
+    public Rect calculateFocusArea(float x, float y, int width, int height, int orientation) {
         RCTCamera _cameraPreview = RCTCamera.getInstance();
         int focusAreaSize = (int) FOCUS_AREA_SIZE / 2;
-        int left = clamp(Float.valueOf((x / width) * 2000 - 1000).intValue(), focusAreaSize);
+        int left = clamp(Float.valueOf(2000 - (x / width) * 2000 - 1000).intValue(), focusAreaSize); // prevraceni
         int top = clamp(Float.valueOf((y / height) * 2000 - 1000).intValue(), focusAreaSize);
 
         Log.i("X", Float.toString(x));
@@ -210,8 +214,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         Log.i("TOP", Integer.toString(top));
         Log.i("WIDTH", Integer.toString(width));
         Log.i("HEIGHT", Integer.toString(height));
+        Log.e("camera orientation", Integer.toString(orientation));
 
-        return new Rect(left, top, left + focusAreaSize / 2, top + focusAreaSize / 2);
+
+        return new Rect(top, left, top + focusAreaSize / 2, left + focusAreaSize / 2);
     }
 
     public int clamp(int touchCoordinateInCameraReper, int focusAreaSize) {
@@ -239,10 +245,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         public void onAutoFocus(boolean success, Camera camera) {
             if (success) {
                 // do something...
-                Log.i("tap_to_focus","success!");
+                Log.i("tap_to_focus", "success!");
             } else {
                 // do something...
-                Log.i("tap_to_focus","fail!");
+                Log.i("tap_to_focus", "fail!");
             }
         }
     };
@@ -255,4 +261,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         mAutoFocusTakePictureCallback = callback;
     }
 
+    public int getOrientation() {
+        if(_sensorOrientationChecker == null) {
+            _sensorOrientationChecker = new RCTSensorOrientationChecker(getContext());
+        }
+
+        return _sensorOrientationChecker.getOrientation();
+    }
 }
